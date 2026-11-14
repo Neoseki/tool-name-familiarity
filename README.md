@@ -3,13 +3,59 @@
 Does renaming tools to unfamiliar but equally clear names change multi-turn tool-calling
 results? A paired pilot on BFCL `multi_turn_base`. Plan: [`plan_pilot.md`](plan_pilot.md).
 
-**Status:** step 1 done (pipeline built and tested locally). No results yet.
+**Status:** steps 1–2 done (pipeline built and tested locally; 20 tasks drawn and frozen).
+No model results yet.
+
+## Pre-registration
+
+Fixed before any model run. Nothing here changes after results are seen; if something must
+change (a bug), the change and the reason go below with a date.
+
+**Hypotheses**
+
+- **H1 (gap):** task success is lower on the renamed twin than on the original, for the same task and model.
+- **H2 (where):** the loss shows up mainly in tool selection and in later turns, less in argument filling.
+- **H3 (intrusion):** on the twin, models sometimes call the *original* tool name (for example `ls`) even though it is not in the tool list.
+- **H0:** no meaningful difference. A valid outcome, reported as such.
+
+**Decision rule.** Per model, over the 20 paired tasks: b = pass original / fail twin,
+c = fail original / pass twin, net = b − c (one task = 5 points), p = exact one-sided McNemar
+on (b, c). Intrusions = twin-condition calls to an original *function* name not in the tool
+list (original *argument* names are counted separately and are not part of H3). "Models" =
+those passing every validity gate in plan 8.2, including Floor. Rows are checked top to
+bottom; the first match is the outcome. Implemented in `src/decide.py`.
+
+| # | Outcome | Condition |
+|---|---|---|
+| 1 | Strong signal | p < 0.05 in ≥ 1 model **and** net ≥ 3 in a second model |
+| 2 | Suggestive | net ≥ 3 in ≥ 2 models |
+| 3 | Reversed | net ≤ −3 in ≥ 2 models |
+| 4 | Behaviour without score change | net ≤ 2 in every model, and H3 holds in ≥ 1 model |
+| 5 | Null | \|net\| ≤ 1 in every model, and H3 fails in every model |
+| 6 | Inconclusive | anything else |
+
+H3 holds for a model if it makes ≥ 3 intrusions across ≥ 2 tasks, more than its calls to
+non-existent tools in the original condition. H2 is assessed only with ≥ 5 original-pass /
+twin-fail tasks pooled across models, and holds if ≥ 60% of them fail first on tool choice
+(wrong tool or intrusion) rather than arguments. Wording allowed per outcome: plan section 2.
+
+**Tasks.** 20 of 200 `multi_turn_base` tasks, drawn by `scripts/select_tasks.py` with seed
+20261114, stratified by main backend: 8 file system, 4 vehicle control, 4 trading, 4 travel.
+IDs in `tasks/selected_ids.json`; strata and reserve order in `tasks/selection.json`. No
+outcome-based exclusions. A reserve replaces a task only for a pipeline reason found before
+any model run, recorded in `tasks/selection.json`. All 20 pass the ground-truth replay in the
+original condition.
+
+Still to freeze before the first real run (plan 8.1): name mappings and clarity check (steps
+3–4), model revisions, vLLM version and sampling settings.
+
+**Changes after freezing:** none.
 
 ## Setup
 
 ```sh
 uv sync                 # Python 3.11, pinned deps in uv.lock
-uv run pytest           # 49 tests, no GPU or server needed
+uv run pytest           # 62 tests, no GPU or server needed
 ```
 
 Local smoke run (Apple Silicon; our own raw server, see below):
