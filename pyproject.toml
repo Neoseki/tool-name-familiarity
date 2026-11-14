@@ -1,0 +1,20 @@
+[project]
+name = "familiar-or-capable"
+version = "0.1.0"
+description = "Pilot: do multi-turn tool-calling scores depend on familiar tool names?"
+requires-python = "==3.11.*"
+dependencies = [
+    "bfcl-eval==2026.3.23",
+    "transformers",
+    "httpx",
+]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
