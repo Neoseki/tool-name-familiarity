@@ -1,6 +1,6 @@
 """Replay BFCL ground truth through our full pipeline as if a model had produced it.
 
-Used by the end-to-end test now and by the twin replay gate (plan 8.2) in step 3.
+Used by the end-to-end test now and by the twin replay gate (README, Validity gates).
 """
 
 import ast

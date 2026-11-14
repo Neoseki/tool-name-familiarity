@@ -1,4 +1,4 @@
-"""Draw the 20 pilot tasks from BFCL multi_turn_base (plan section 3.2). Deterministic.
+"""Draw the 20 pilot tasks from BFCL multi_turn_base. Deterministic.
 
 Every task has exactly one main backend (50 tasks each); the other classes only ever
 appear as a second backend. Strata = main backend: 8 file-system tasks (most familiar

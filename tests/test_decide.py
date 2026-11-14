@@ -7,8 +7,8 @@ def m(b, c, intrusions=0, tasks=0, orig=0):
     return ModelResult(b, c, intrusions, tasks, orig)
 
 
-@pytest.mark.parametrize("b,c,p", [(5, 0, 1 / 32), (6, 1, 8 / 128), (7, 1, 9 / 256)])  # plan: 0.031, 0.063, 0.035
-def test_reference_p_values_from_plan(b, c, p):
+@pytest.mark.parametrize("b,c,p", [(5, 0, 1 / 32), (6, 1, 8 / 128), (7, 1, 9 / 256)])  # README: 0.031, 0.063, 0.035
+def test_reference_p_values(b, c, p):
     assert m(b, c).p == pytest.approx(p)
 
 

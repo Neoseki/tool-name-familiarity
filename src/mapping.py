@@ -11,7 +11,7 @@ from .parsers.base import ToolCall
 
 
 def not_found(name: str) -> str:
-    """Same generic errors in both conditions (plan section 3.7)."""
+    """Same generic errors in both conditions."""
     return f"Error: function '{name}' not found"
 
 

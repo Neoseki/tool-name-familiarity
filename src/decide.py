@@ -1,6 +1,6 @@
-"""The pre-registered decision rule (plan_pilot.md section 2), as code.
+"""The pre-registered decision rule (README, Pre-registration), as code.
 
-Pass only the models that passed every validity gate (plan 8.2), including Floor.
+Pass only the models that passed every validity gate (README), including Floor.
 """
 
 from dataclasses import dataclass

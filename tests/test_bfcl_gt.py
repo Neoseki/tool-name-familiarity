@@ -1,4 +1,4 @@
-"""BFCL's own checker accepts its ground truth (plan section 4, step 1)."""
+"""BFCL's own checker accepts its ground truth."""
 
 from conftest import DEV_IDS
 from src.score import score_entry

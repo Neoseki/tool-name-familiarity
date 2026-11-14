@@ -1,6 +1,6 @@
 """Per-model settings. Identical across conditions; only the endpoint differs Mac vs pod.
 
-Revisions are pinned before the real run (plan section 8.1). None = not pinned yet.
+Revisions are pinned before the real run (README, Pre-registration). None = not pinned yet.
 """
 
 from dataclasses import dataclass, field

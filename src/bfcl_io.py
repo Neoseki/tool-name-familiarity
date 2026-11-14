@@ -1,7 +1,7 @@
 """Thin access layer over the pinned bfcl-eval package.
 
 We use BFCL's task data, backend classes and checker only. Prompt formatting and
-output decoding are ours (plan section 3.7).
+output decoding are ours (README, Pipeline).
 """
 
 import copy

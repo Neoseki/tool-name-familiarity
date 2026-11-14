@@ -1,4 +1,4 @@
-"""Raw-text completion client and JSONL logger (plan section 3.7).
+"""Raw-text completion client and JSONL logger (README, Pipeline).
 
 Only /v1/completions with a prompt string: no chat endpoint, no server-side parsing,
 no retries. Every sampling setting is sent on every request.
@@ -24,7 +24,7 @@ class Completion:
 
 def sampling_for(cfg: ModelConfig, seed: int) -> dict:
     return {
-        "temperature": 0,  # greedy; see plan decision 7
+        "temperature": 0,  # greedy on purpose; see README notes
         "seed": seed,
         "max_tokens": cfg.max_tokens,
         "stop": list(cfg.stop),

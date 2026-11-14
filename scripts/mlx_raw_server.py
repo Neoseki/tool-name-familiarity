@@ -1,7 +1,7 @@
 """Minimal raw-completion server for local testing on Apple Silicon. Stand-in for vLLM.
 
 mlx_lm.server strips tool-call and reasoning text out of /v1/completions output
-(mlx-lm 0.32.2), which is hidden processing we rule out (plan 3.7). This server does
+(mlx-lm 0.32.2), which is hidden processing we rule out (README, Pipeline). This server does
 only: tokenize the prompt as given, greedy-decode, stop on EOS / stop strings / max_tokens,
 return the full decoded text.
 

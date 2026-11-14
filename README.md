@@ -1,7 +1,7 @@
 # Familiar or capable?
 
 Does renaming tools to unfamiliar but equally clear names change multi-turn tool-calling
-results? A paired pilot on BFCL `multi_turn_base`. Plan: [`plan_pilot.md`](plan_pilot.md).
+results? A paired pilot on BFCL `multi_turn_base`.
 
 **Status:** steps 1–2 done (pipeline built and tested locally; 20 tasks drawn and frozen).
 No model results yet.
@@ -20,24 +20,41 @@ change (a bug), the change and the reason go below with a date.
 
 **Decision rule.** Per model, over the 20 paired tasks: b = pass original / fail twin,
 c = fail original / pass twin, net = b − c (one task = 5 points), p = exact one-sided McNemar
-on (b, c). Intrusions = twin-condition calls to an original *function* name not in the tool
+on (b, c), direction fixed by H1 (for reference: 5–0 gives p = 0.031, 6–1 gives 0.063,
+7–1 gives 0.035). Intrusions = twin-condition calls to an original *function* name not in the tool
 list (original *argument* names are counted separately and are not part of H3). "Models" =
-those passing every validity gate in plan 8.2, including Floor. Rows are checked top to
+those passing every validity gate below, including Floor. Rows are checked top to
 bottom; the first match is the outcome. Implemented in `src/decide.py`.
 
-| # | Outcome | Condition |
-|---|---|---|
-| 1 | Strong signal | p < 0.05 in ≥ 1 model **and** net ≥ 3 in a second model |
-| 2 | Suggestive | net ≥ 3 in ≥ 2 models |
-| 3 | Reversed | net ≤ −3 in ≥ 2 models |
-| 4 | Behaviour without score change | net ≤ 2 in every model, and H3 holds in ≥ 1 model |
-| 5 | Null | \|net\| ≤ 1 in every model, and H3 fails in every model |
-| 6 | Inconclusive | anything else |
+| # | Outcome | Condition | Wording allowed |
+|---|---|---|---|
+| 1 | Strong signal | p < 0.05 in ≥ 1 model **and** net ≥ 3 in a second model | "a consistent drop" |
+| 2 | Suggestive | net ≥ 3 in ≥ 2 models | "suggestive, not significant at n = 20" |
+| 3 | Reversed | net ≤ −3 in ≥ 2 models | "twin names did better"; re-check the clarity test before drawing anything from it |
+| 4 | Behaviour without score change | net ≤ 2 in every model, and H3 holds in ≥ 1 model | "familiarity changes behaviour, not score" |
+| 5 | Null | \|net\| ≤ 1 in every model, and H3 fails in every model | "no effect found on this benchmark" |
+| 6 | Inconclusive | anything else | "inconclusive" |
+
+If fewer than 2 models pass the gates, rows 1–3 cannot match; report per-model counts.
 
 H3 holds for a model if it makes ≥ 3 intrusions across ≥ 2 tasks, more than its calls to
 non-existent tools in the original condition. H2 is assessed only with ≥ 5 original-pass /
 twin-fail tasks pooled across models, and holds if ≥ 60% of them fail first on tool choice
-(wrong tool or intrusion) rather than arguments. Wording allowed per outcome: plan section 2.
+(wrong tool or intrusion) rather than arguments.
+
+**Validity gates.** Results count only if all pass.
+
+| Gate | Pass condition | If it fails |
+|---|---|---|
+| Replay test | Ground-truth calls replayed through twin names pass the checker on 20/20 tasks | Fix the mapping layer; do not run models |
+| Intrusion blocking | A deliberate original function name and a deliberate original argument name in the twin condition are each rejected and logged, and neither reaches the backend | Fix before running |
+| Clarity check | A judge model, shown only the name and parameter names, describes the tool correctly for ≥ 90% of twin names, and the twin rate is no more than 5 points below the original rate | Rename and re-check |
+| Parser parity | Parse-failure rate in the twin condition is within 5 points of the original condition, or the difference is explained by logged intrusions | Inspect raw outputs; fix the parser if it is format-related |
+| Parser health | In the original condition, under 10% of a model's steps fail to parse | Fix the template or parser, or drop that model and report why |
+| Truncation | Under 2% of steps stop on `length` | Raise `max_tokens`, rerun that model |
+| Floor | Each model passes at least 5/20 tasks in the original condition | Report it, but leave it out of the decision rule |
+| Run-to-run stability | Repeating 5 tasks × 2 conditions on one model changes at most 1 of 10 outcomes | Run 3 repeats for all and report the spread |
+| Traceability | Every scored call traces back to a logged prompt and raw output | Rerun the untraced parts |
 
 **Tasks.** 20 of 200 `multi_turn_base` tasks, drawn by `scripts/select_tasks.py` with seed
 20261114, stratified by main backend: 8 file system, 4 vehicle control, 4 trading, 4 travel.
@@ -46,8 +63,8 @@ outcome-based exclusions. A reserve replaces a task only for a pipeline reason f
 any model run, recorded in `tasks/selection.json`. All 20 pass the ground-truth replay in the
 original condition.
 
-Still to freeze before the first real run (plan 8.1): name mappings and clarity check (steps
-3–4), model revisions, vLLM version and sampling settings.
+Still to freeze before the first real run: name mappings and clarity check, model
+revisions, vLLM version and sampling settings.
 
 **Changes after freezing:** none.
 
