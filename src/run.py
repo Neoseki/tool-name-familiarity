@@ -56,7 +56,7 @@ def main() -> None:
         verdict = score_entry(entry, r.decoded, gts[tid], run_name, r.force_quit)
         passed += bool(verdict["valid"])
         log.write({**base, "type": "entry", "task_id": tid, "valid": verdict["valid"], "checker": verdict,
-                   "decoded": r.decoded, "steps": r.steps, "rejected": r.rejected, "intrusions": r.intrusions,
+                   "decoded": r.decoded, "steps": r.steps, "rejected": r.rejected, "intrusions": r.intrusions, "arg_intrusions": r.arg_intrusions,
                    "force_quit": r.force_quit})
         print(f"{tid}: {'PASS' if verdict['valid'] else 'FAIL ' + verdict.get('error_type', '')} "
               f"(steps={r.steps}, rejected={r.rejected})")

@@ -9,7 +9,7 @@ results? A paired pilot on BFCL `multi_turn_base`. Plan: [`plan_pilot.md`](plan_
 
 ```sh
 uv sync                 # Python 3.11, pinned deps in uv.lock
-uv run pytest           # 44 tests, no GPU or server needed
+uv run pytest           # 49 tests, no GPU or server needed
 ```
 
 Local smoke run (Apple Silicon; our own raw server, see below):
@@ -67,6 +67,7 @@ Model revisions for the real run are pinned in `src/models.py` before it starts.
   field is dropped. Same in both conditions.
 - **`add_special_tokens: false`** on every request: the rendered prompt already has any BOS the
   template wants.
+- **Argument names are checked** against the shown schema in both conditions; unknown ones reject the call. In the twin condition the backend would otherwise accept original parameter names silently.
 - BFCL's `excluded_function` field is not used by BFCL's code; we don't use it either.
 - Code and data licence of BFCL: Apache-2.0.
 

@@ -12,7 +12,7 @@ from bfcl_eval.constants.default_prompts import MAXIMUM_STEP_LIMIT
 
 from . import bfcl_io
 from .client import Completion
-from .mapping import NameMap, resolve
+from .mapping import NameMap, param_names, resolve
 from .models import ModelConfig
 from .parsers.base import OK
 from .render import render
@@ -25,7 +25,8 @@ class EntryRun:
     decoded: list[list[list[str]]] = field(default_factory=list)  # turn -> step -> accepted original call strings
     force_quit: bool = False
     steps: int = 0
-    intrusions: int = 0
+    intrusions: int = 0  # original function names (H3)
+    arg_intrusions: int = 0  # original argument names
     rejected: int = 0
 
 
@@ -41,7 +42,7 @@ def run_entry(
 ) -> EntryRun:
     tools_original = bfcl_io.original_tools(entry)
     tools_model = names.model_tools(tools_original)
-    original_names = {t["function"]["name"] for t in tools_original}
+    shown, originals = param_names(tools_model), param_names(tools_original)
     messages: list[dict] = []
     out = EntryRun()
 
@@ -76,14 +77,15 @@ def run_entry(
                 log({**record, "turn_end": parsed.status})
                 break
 
-            resolved = [resolve(c, names, original_names) for c in parsed.calls]
+            resolved = [resolve(c, names, shown, originals) for c in parsed.calls]
             accepted = [r.call_str for r in resolved if r.accepted]
             results = iter(bfcl_io.execute(accepted, entry, run_name) if accepted else [])
             outputs = [names.tool_output(next(results)) if r.accepted else r.error for r in resolved]
             if accepted:
                 turn_decoded.append(accepted)
             out.rejected += sum(not r.accepted for r in resolved)
-            out.intrusions += sum(r.intrusion for r in resolved)
+            out.intrusions += sum(r.intrusion == "function" for r in resolved)
+            out.arg_intrusions += sum(r.intrusion == "argument" for r in resolved)
 
             messages.extend({"role": "tool", "content": o} for o in outputs)
 
